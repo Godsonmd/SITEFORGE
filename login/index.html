@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - The Sandbox</title>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        :root {
+            /* VIBRANT PURPLE-CYAN THEME */
+            --bg-color: #0a0118;
+            --card-bg: rgba(20, 10, 40, 0.85);
+            --text-color: #E0E7FF;
+            --text-muted: #A5B4FC;
+            --border-color: #4C1D95;
+            
+            --accent-primary: #A78BFA;
+            --accent-secondary: #06B6D4;
+            --accent-tertiary: #F472B6;
+            
+            --border-style: 2px solid var(--border-color);
+            --radius: 12px;
+            --shadow: 0 20px 60px rgba(167, 139, 250, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html::-webkit-scrollbar { display: none; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow-y: scroll;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .login-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: var(--border-style);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 450px;
+            padding: 3rem;
+            position: relative;
+            z-index: 10;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: var(--border-style);
+        }
+
+        .logo { 
+            font-size: 3rem; 
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px var(--accent-primary));
+        }
+
+        .logo img {
+            height: 60px;
+            width: 60px;
+            vertical-align: middle;
+            margin-right: 8px;
+            filter: drop-shadow(0 0 15px var(--accent-secondary));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { filter: drop-shadow(0 0 15px var(--accent-secondary)); }
+            50% { filter: drop-shadow(0 0 25px var(--accent-primary)); }
+        }
+
+        .logo-text {
+            color: var(--text-color);
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-primary);
+            font-size: 1.2rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.9rem 0.9rem 0.9rem 3rem;
+            background-color: rgba(10, 1, 24, 0.6);
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+            color: var(--text-color);
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.5);
+            background-color: rgba(10, 1, 24, 0.8);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            width: fit-content;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+
+        .checkbox-container input { display: none; }
+
+        .checkmark {
+            width: 18px;
+            height: 18px;
+            min-width: 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            background-color: rgba(10, 1, 24, 0.6);
+        }
+
+        .checkbox-container:hover .checkmark {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 10px rgba(167, 139, 250, 0.3);
+        }
+
+        .checkbox-container input:checked + .checkmark {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-color: var(--accent-primary);
+        }
+
+        .checkmark::after {
+            content: '✔';
+            color: #0a0118;
+            font-size: 12px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .checkbox-container input:checked + .checkmark::after {
+            display: block;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .forgot-password a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .forgot-password a:hover {
+            color: var(--accent-primary);
+            text-shadow: 0 0 10px var(--accent-primary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid transparent;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: #0a0118;
+            border-color: var(--accent-primary);
+            box-shadow: 0 10px 30px rgba(167, 139, 250, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(167, 139, 250, 0.6);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 20px rgba(167, 139, 250, 0.4);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.5rem 0;
+            color: var(--text-muted);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+        }
+
+        .divider span {
+            padding: 0 1rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .signup-prompt {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .signup-prompt a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .signup-prompt a:hover {
+            color: var(--accent-secondary);
+            text-shadow: 0 0 10px var(--accent-secondary);
+        }
+
+        @media (max-width: 480px) {
+            .login-container { padding: 2rem; }
+        }
+        .toast-container{
+            z-index: 9999999;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+
+    <div class="login-container">
+        <div class="logo-section">
+            <div class="logo">
+                <img src="/favicon.png" alt="logo">
+            </div>
+            <div class="logo-text">The FestForge</div>
+            <p class="subtitle">Sign in to your account</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <div class="input-wrapper">
+                    <i class="ph-duotone ph-envelope"></i>
+                    <input type="email" id="email" required placeholder="your.email@thejus.ac.in">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <i class="ph-duotone ph-lock-key"></i>
+                    <input type="password" id="password" required placeholder="Enter your password">
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                    <label class="checkbox-container" style="margin-top: 0;">
+                        <input type="checkbox" id="showPassword">
+                        <span class="checkmark"></span>
+                        Show Password
+                    </label>
+
+                    <label class="checkbox-container" style="margin-top: 0;">
+                        <input type="checkbox" id="rememberMe" checked>
+                        <span class="checkmark"></span>
+                        Remember Me
+                    </label>
+                </div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="#">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="signup-prompt">
+            Don't have an account? <a href="/SITEFORGE/register">Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        // Show Password Toggle
+        document.getElementById('showPassword').addEventListener('change', function() {
+            const passwordInput = document.getElementById('password');
+            passwordInput.type = this.checked ? 'text' : 'password';
+        });
+
+        // Three.js Scene Setup
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x000000);
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 50;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+
+        // White star particles
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 2000;
+        const posArray = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 200;
+        }
+
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.5,
+            color: 0xFFFFFF,
+            transparent: true,
+            opacity: 0.8
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+
+        // Mouse interaction
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Slowly rotate stars
+            particlesMesh.rotation.y += 0.0002;
+            particlesMesh.rotation.x += 0.0001;
+
+            // Subtle camera movement with mouse
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.02;
+            camera.position.y += (mouseY * 2 - camera.position.y) * 0.02;
+            camera.lookAt(scene.position);
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Form submission
+        function createid(str,subStr){
+            let mid = Math.floor(str.length / 2);
+            return str.slice(0, mid) + subStr + str.slice(mid);
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Show loading state
+            const btn = this.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Verifying...';
+            btn.disabled = true;
+
+            const dataToSend = {
+                email: email,
+                password: password
+            };
+
+            try {
+                const res = await fetch('https://5bgtntxzcc.execute-api.ap-south-1.amazonaws.com/user/login',{
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dataToSend)
+                });
+                
+                const result = await res.json();
+                
+                if(!res.ok){
+                    throw new Error(result.error || 'Login failed');
+                }
+                
+                const loginId = createid("Logged-" + crypto.randomUUID(),result.user.email);
+                const logindata= {
+                    Lid: loginId,
+                    email: result.user.email,
+                    is_admin: result.user.is_admin,
+                    is_remembered: document.getElementById('rememberMe').checked
+                }
+                const data={
+                    tableName: "SiteForge_DailyLogin",
+                    partitionKey: "Lid",
+                    data: logindata
+                };
+                try{
+                    const res= await fetch('https://9hv6azcvg5.execute-api.ap-south-1.amazonaws.com/set/anywhere',{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':'application/json'
+                        },
+                        body:JSON.stringify(data)
+                    });
+                    const result1=await res.json();
+                    if(!res.ok){
+                        throw new Error(result1.error || 'Can\'t Login');
+                    }
+                    showmsg('Login successful! Redirecting...', 'success', 1500);
+                    localStorage.setItem('logindata', loginId);
+                    setTimeout(() => {
+                        if(result.user.is_admin){
+                            window.location.href = '/SITEFORGE/';
+                        } else
+                        window.location.href = '/SITEFORGE/';
+                    }, 1500);
+                    console.log('Response:', result);
+                }
+                catch(err){
+                    showmsg(err.message || 'An error occurred', 'error');
+                }
+            } catch(err) {
+                showmsg(err.message || 'An error occurred', 'error');
+                console.error('Error during login:', err);
+            } finally {
+                // Reset button
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Toast Function
+        function showmsg(message, status='error', delay=5000) {
+            const toastContainer = document.createElement('div');
+            toastContainer.className = 'toast-container';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${status}`;
+            toast.innerHTML = `<i class="ph-fill ${status === 'success' ? 'ph-check-circle' : 'ph-warning-circle'}" style="margin-right:10px; font-size:1.2rem;"></i> ${message}`;
+            
+            toastContainer.appendChild(toast);
+            document.body.appendChild(toastContainer);
+            
+            // Show the toast
+            toastContainer.style.display = 'block';
+            
+            // Hide and remove the toast after delay
+            setTimeout(() => {
+                toastContainer.style.display = 'none';
+                if(document.body.contains(toastContainer)) {
+                    document.body.removeChild(toastContainer);
+                }
+            }, delay);
+        }
+        async function redirecting(){
+            const savedLogin = localStorage.getItem('logindata');
+            if(savedLogin){
+                try{
+                    const data={
+                        tableName: "SiteForge_DailyLogin",
+                        partitionKeyName: "Lid",
+                        partitionKeyValue: savedLogin
+                    }
+                    const res= await fetch('https://djiomknu1i.execute-api.ap-south-1.amazonaws.com/fetch/datas',{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':'application/json'
+                        },
+                        body:JSON.stringify(data)
+                    });
+                    const result1= await res.json();
+                    if(!res.ok){
+                        localStorage.removeItem('logindata');
+                        throw new Error(result1.error || 'Can\'t Redirect');
+                    }
+                    if(result1.is_remembered){
+                        if(result1.is_admin)
+                        window.location.href = '/admin-root.html';
+                        else
+                        window.location.href = '/index.html';
+                    }
+                    else
+                        localStorage.removeItem('logindata');
+                }
+                catch(err){
+                    console.log(err);
+                }
+            }
+            else{
+                localStorage.removeItem('logindata');
+            }
+        }
+        redirecting();
+    </script>
+</body>
+</html>

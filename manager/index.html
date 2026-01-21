@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteForge Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+:root{
+ --primary:#A78BFA;--secondary:#06B6D4;--bg:#0a0118;
+ --surface:rgba(20,10,40,.85);--text:#E0E7FF;--muted:#A5B4FC;
+ --border:#4C1D95;--radius:1rem;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text)}
+#bg{position:fixed;inset:0;z-index:0}
+
+.container{max-width:1100px;margin:auto;padding:2rem;position:relative;z-index:2}
+h1{font-size:2.2rem;margin-bottom:2rem}
+.card{background:var(--surface);border:1px solid var(--border);
+border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem}
+label{display:block;margin:.5rem 0;font-size:.9rem;color:var(--muted)}
+input,select{width:100%;padding:.6rem;border-radius:.5rem;
+border:1px solid var(--border);background:#0a0118;color:var(--text)}
+button{margin-top:1rem;padding:.7rem 1.5rem;border:none;
+border-radius:.6rem;font-weight:800;cursor:pointer;
+background:linear-gradient(135deg,var(--primary),var(--secondary));
+color:#0a0118}
+button:hover{transform:translateY(-2px)}
+
+.grid{display:grid;gap:1.5rem}
+@media(min-width:768px){.grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div id="bg"></div>
+
+<div class="container">
+  <h1>SiteForge Admin Panel</h1>
+
+  <div class="grid">
+
+    <!-- Branding -->
+    <div class="card">
+      <h3>Fest Branding</h3>
+      <label>Fest Name</label>
+      <input id="festName" value="SiteForge">
+
+      <label>Primary Color</label>
+      <input type="color" id="primaryColor" value="#A78BFA">
+
+      <label>Secondary Color</label>
+      <input type="color" id="secondaryColor" value="#06B6D4">
+
+      <label>Logo URL</label>
+      <input id="logoUrl" placeholder="https://...">
+
+      <button onclick="saveBranding()">Save Branding</button>
+    </div>
+
+    <!-- Create Event -->
+    <div class="card">
+      <h3>Create Event</h3>
+      <label>Event Name</label>
+      <input id="ename">
+
+      <label>Day</label>
+      <select id="eday">
+        <option>Day 1</option><option>Day 2</option><option>Day 3</option>
+      </select>
+
+      <label>Start Time</label>
+      <input type="time" id="estart">
+
+      <label>End Time</label>
+      <input type="time" id="eend">
+
+      <label>Venue</label>
+      <input id="evenue">
+
+      <label>Slots</label>
+      <input type="number" id="eslots">
+
+      <button onclick="addEvent()">Add Event</button>
+    </div>
+
+  </div>
+
+  <!-- Event List -->
+  <div class="card">
+    <h3>All Events</h3>
+    <div id="eventList"></div>
+  </div>
+</div>
+
+<script>
+/* THREE.JS BACKGROUND */
+const scene=new THREE.Scene();
+const cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,1000);
+cam.position.z=50;
+const renderer=new THREE.WebGLRenderer({alpha:true});
+renderer.setSize(innerWidth,innerHeight);
+document.getElementById("bg").appendChild(renderer.domElement);
+const geo=new THREE.BufferGeometry();
+const arr=new Float32Array(2000*3);
+for(let i=0;i<arr.length;i++)arr[i]=(Math.random()-.5)*200;
+geo.setAttribute("position",new THREE.BufferAttribute(arr,3));
+const stars=new THREE.Points(geo,new THREE.PointsMaterial({size:.5,color:0xFFFFFF}));
+scene.add(stars);
+function anim(){requestAnimationFrame(anim);stars.rotation.y+=.0003;renderer.render(scene,cam)}
+anim();
+addEventListener("resize",()=>{cam.aspect=innerWidth/innerHeight;
+cam.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)})
+
+/* ADMIN LOGIC (Mock / Can connect to API) */
+let events=[];
+
+function saveBranding(){
+ alert("Branding Saved!\n"+festName.value);
+}
+
+function addEvent(){
+ const e={
+  name:ename.value,day:eday.value,start:estart.value,
+  end:eend.value,venue:evenue.value,slots:eslots.value
+ };
+ events.push(e);
+ renderEvents();
+}
+
+function renderEvents(){
+ eventList.innerHTML=events.map((e,i)=>`
+  <div style="margin:.5rem 0;padding:.5rem;border-bottom:1px solid var(--border)">
+   <b>${e.name}</b> - ${e.day} (${e.start}-${e.end}) @ ${e.venue}
+   <button onclick="del(${i})" style="float:right;background:#ef4444;color:white">X</button>
+  </div>
+ `).join("");
+}
+
+function del(i){events.splice(i,1);renderEvents()}
+</script>
+</body>
+</html>

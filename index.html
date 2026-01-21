@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SiteForge | Fest Management Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--primary:#A78BFA;--secondary:#06B6D4;--bg:#000;--surface:rgba(20,10,40,.95);--text:#E0E7FF;--muted:#A5B4FC;--border:#4C1D95;--shadow:0 20px 60px rgba(167,139,250,.3)}
+*{margin:0;padding:0;box-sizing:border-box}
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px}
+body{font-family:Inter,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+#bg{position:fixed;inset:0;z-index:0}
+.container{max-width:1280px;margin:0 auto;padding:0 2rem;position:relative;z-index:2}
+.hidden{display:none!important}
+nav{position:sticky;top:0;z-index:50;background:rgba(10,1,24,.8);backdrop-filter:blur(20px);border-bottom:1px solid rgba(167,139,250,.1);height:5rem;transition:all .3s}
+nav:hover{background:rgba(10,1,24,.95);border-bottom-color:rgba(167,139,250,.2)}
+.nav-content{display:flex;height:100%;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:1rem;font-weight:800;font-size:1.5rem;cursor:pointer;transition:all .3s}
+.nav-brand:hover{transform:translateY(-2px)}
+.fest-logo{width:3rem;height:3rem;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.2rem;color:#000;box-shadow:0 8px 20px rgba(167,139,250,.4);transition:all .3s}
+.fest-logo:hover{transform:rotate(360deg) scale(1.1);box-shadow:0 12px 30px rgba(167,139,250,.6)}
+.nav-links{display:flex;gap:2.5rem;align-items:center}
+.nav-links a{color:var(--text);text-decoration:none;font-size:1rem;font-weight:600;position:relative;padding:.5rem 0;transition:all .3s;cursor:pointer}
+.nav-links a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:linear-gradient(90deg,var(--primary),var(--secondary));transition:all .3s}
+.nav-links a:hover{color:var(--primary)}
+.nav-links a:hover::after{width:100%}
+.hero{min-height:500px;border-radius:1.5rem;display:flex;align-items:center;justify-content:center;text-align:center;margin:3rem 0;padding:4rem 2rem;background:linear-gradient(135deg,var(--primary),var(--secondary));position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(255,255,255,.1),transparent 50%);animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.hero-content{position:relative;z-index:2}
+.hero h1{font-size:clamp(2.5rem,6vw,4rem);font-weight:900;margin-bottom:1.5rem;color:#000;text-shadow:2px 2px 4px rgba(0,0,0,.1);letter-spacing:-1px}
+.hero p{font-size:1.25rem;margin-bottom:2.5rem;color:rgba(0,0,0,.8);font-weight:500;max-width:600px;margin-left:auto;margin-right:auto}
+.btn{padding:1rem 2rem;border-radius:.75rem;font-weight:700;font-size:1rem;border:none;cursor:pointer;transition:all .3s;text-transform:uppercase;letter-spacing:.5px;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;top:50%;left:50%;width:0;height:0;border-radius:50%;background:rgba(255,255,255,.3);transform:translate(-50%,-50%);transition:width .6s,height .6s}
+.btn:hover::before{width:300px;height:300px}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#000;box-shadow:0 10px 30px rgba(167,139,250,.4)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(167,139,250,.6)}
+.btn-white{background:#fff;color:#000;box-shadow:0 10px 30px rgba(255,255,255,.2)}
+.btn-white:hover{transform:translateY(-3px) scale(1.05);box-shadow:0 15px 40px rgba(255,255,255,.4)}
+.btn-outline{border:2px solid var(--primary);background:transparent;color:var(--text)}
+.btn-outline:hover{background:var(--primary);color:#000}
+.card{background:var(--surface);border:1px solid rgba(167,139,250,.2);border-radius:1rem;padding:2rem;box-shadow:var(--shadow);transition:all .3s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),var(--secondary));transform:scaleX(0);transition:all .3s}
+.card:hover{transform:translateY(-5px);box-shadow:0 30px 80px rgba(167,139,250,.4);border-color:rgba(167,139,250,.4)}
+.card:hover::before{transform:scaleX(1)}
+.card h3{font-size:1.75rem;margin-bottom:.5rem;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stats-grid,.event-grid{display:grid;gap:2rem;margin-top:3rem}
+.stats-grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.event-grid{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+.badge{display:inline-block;background:rgba(167,139,250,.2);color:var(--primary);padding:.4rem 1rem;border-radius:999px;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:1rem;border:1px solid rgba(167,139,250,.3)}
+.event-title{font-size:1.5rem;font-weight:700;margin-bottom:.5rem;color:var(--text)}
+.event-desc{color:var(--muted);margin-bottom:1rem;line-height:1.6}
+.event-meta{display:flex;gap:1.5rem;margin:1.5rem 0;padding:1rem;background:rgba(0,0,0,.3);border-radius:.5rem;flex-wrap:wrap}
+.meta-item{display:flex;align-items:center;gap:.5rem;font-size:.9rem;color:var(--muted)}
+.section-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:2rem;margin-bottom:3rem;padding-bottom:1.5rem;border-bottom:1px solid rgba(167,139,250,.1)}
+.section-header h2{font-size:2.5rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.tabs{display:flex;background:rgba(10,1,24,.8);padding:.5rem;border-radius:.75rem;gap:.5rem;border:1px solid rgba(167,139,250,.2)}
+.tab-btn{border:none;background:transparent;color:var(--text);padding:.75rem 1.75rem;border-radius:.5rem;cursor:pointer;font-weight:600;transition:all .3s;font-size:.95rem}
+.tab-btn:hover{background:rgba(167,139,250,.1)}
+.tab-btn.active{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#000;box-shadow:0 5px 15px rgba(167,139,250,.4)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;z-index:100;padding:2rem}
+.modal.active{display:flex;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-content{background:var(--surface);border-radius:1.5rem;padding:3rem;max-width:600px;width:100%;position:relative;border:1px solid rgba(167,139,250,.3);box-shadow:var(--shadow);animation:slideUp .3s}
+@keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-close{position:absolute;top:1.5rem;right:1.5rem;background:rgba(255,255,255,.1);border:none;color:var(--text);width:2.5rem;height:2.5rem;border-radius:50%;cursor:pointer;font-size:1.5rem;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(239,68,68,.8);transform:rotate(90deg)}
+.modal-body h2{font-size:2rem;margin-bottom:1rem;color:var(--text)}
+.modal-body p{color:var(--muted);margin-bottom:2rem;line-height:1.8}
+.modal-actions{display:flex;gap:1rem;margin-top:2rem}
+.modal-actions .btn{flex:1}
+.admin-form{display:grid;gap:2rem}
+.form-group{display:flex;flex-direction:column;gap:.75rem}
+.form-group label{font-weight:600;color:var(--text);font-size:.95rem;text-transform:uppercase;letter-spacing:.5px}
+.form-group input{padding:1rem;background:rgba(0,0,0,.4);border:1px solid rgba(167,139,250,.2);border-radius:.5rem;color:var(--text);font-size:1rem;font-family:inherit;transition:all .3s}
+.form-group input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 20px rgba(167,139,250,.3)}
+.form-group input[type=color]{height:60px;cursor:pointer}
+#toast{position:fixed;bottom:2rem;right:2rem;padding:1.25rem 2rem;border-radius:.75rem;color:#fff;transform:translateY(200px);opacity:0;transition:all .3s;z-index:200;font-weight:600;box-shadow:0 10px 40px rgba(0,0,0,.5);min-width:300px;border:1px solid rgba(255,255,255,.2)}
+#toast.visible{transform:translateY(0);opacity:1}
+.schedule-empty{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.schedule-empty h3{font-size:1.5rem;margin-bottom:1rem}
+#my-events-list{display:grid;gap:1.5rem}
+.schedule-card{display:flex;justify-content:space-between;align-items:center;gap:1.5rem;flex-wrap:wrap}
+.schedule-info h4{font-size:1.25rem;margin-bottom:.5rem}
+.schedule-time{color:var(--secondary);font-weight:600}
+.menu-btn{display:none;background:transparent;border:none;color:var(--text);font-size:1.5rem;cursor:pointer;padding:.5rem;z-index:60}
+.mobile-menu{display:none;position:fixed;top:5rem;left:0;right:0;background:rgba(10,1,24,.98);backdrop-filter:blur(20px);border-bottom:1px solid rgba(167,139,250,.2);padding:2rem;z-index:55;animation:slideDown .3s}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.mobile-menu.active{display:block}
+.mobile-menu a{display:block;padding:1rem;color:var(--text);text-decoration:none;font-weight:600;border-bottom:1px solid rgba(167,139,250,.1);transition:all .3s}
+.mobile-menu a:hover{background:rgba(167,139,250,.1);padding-left:1.5rem}
+@media(max-width:768px){.nav-links{display:none}.menu-btn{display:block}.container{padding:0 1.5rem}.hero{margin:2rem 0;min-height:400px}.section-header{flex-direction:column;align-items:flex-start}.tabs{width:100%}.modal-content{padding:2rem}.modal-actions{flex-direction:column}}
+@media(max-width:480px){#toast{left:1rem;right:1rem;min-width:auto}}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<nav>
+<div class="container nav-content">
+<div class="nav-brand" onclick="toggleView('home')">
+<div class="fest-logo"><span id="logo-text">SF</span></div>
+<span id="fest-name-nav">The FestForge</span>
+</div>
+<button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
+<div class="nav-links">
+<a onclick="toggleView('home')">Home</a>
+<a onclick="toggleView('events')">Events</a>
+<a onclick="toggleView('schedule')">My Schedule</a>
+<a onclick="toggleView('admin')">Admin</a>
+<a onclick="toggleView('logout')">Logout</a>
+</div>
+</div>
+</nav>
+<div id="mobile-menu" class="mobile-menu">
+<a onclick="toggleView('home');toggleMobileMenu()">Home</a>
+<a onclick="toggleView('events');toggleMobileMenu()">Events</a>
+<a onclick="toggleView('schedule');toggleMobileMenu()">My Schedule</a>
+<a onclick="toggleView('admin');toggleMobileMenu()">Admin</a>
+</div>
+<main class="container">
+<section id="home-view">
+<div class="hero">
+<div class="hero-content">
+<h1 id="fest-title">Unleash the Future</h1>
+<p id="fest-desc">Join the biggest technical and cultural extravaganza of the year.</p>
+<button class="btn btn-white" onclick="toggleView('events')">Explore Events</button>
+</div>
+</div>
+<div class="stats-grid">
+<div class="card"><h3>3 Days</h3><p style="color:var(--muted);font-size:1.1rem">Non-stop learning & fun</p></div>
+<div class="card"><h3>20+ Events</h3><p style="color:var(--muted);font-size:1.1rem">Technical & Cultural</p></div>
+<div class="card"><h3>₹50K+</h3><p style="color:var(--muted);font-size:1.1rem">Cash prizes to win</p></div>
+</div>
+</section>
+<section id="events-view" class="hidden">
+<div class="section-header">
+<h2>Event Schedule</h2>
+<div class="tabs">
+<button class="tab-btn active" onclick="filterEvents('Day 1')">Day 1</button>
+<button class="tab-btn" onclick="filterEvents('Day 2')">Day 2</button>
+<button class="tab-btn" onclick="filterEvents('Day 3')">Day 3</button>
+</div>
+</div>
+<div id="events-grid" class="event-grid"></div>
+</section>
+<section id="schedule-view" class="hidden">
+<div class="section-header"><h2>My Registered Events</h2></div>
+<div id="my-events-list"></div>
+</section>
+<section id="admin-view" class="hidden">
+<div class="section-header"><h2>Branding Console</h2></div>
+<div class="card">
+<div class="admin-form">
+<div class="form-group">
+<label for="input-fest-name">Festival Name</label>
+<input id="input-fest-name" type="text" value="The FestForge">
+</div>
+<div class="form-group">
+<label for="input-primary-color">Primary Color</label>
+<input type="color" id="input-primary-color" value="#A78BFA">
+</div>
+<div class="form-group">
+<label for="input-secondary-color">Secondary Color</label>
+<input type="color" id="input-secondary-color" value="#06B6D4">
+</div>
+<button class="btn btn-primary" onclick="updateBranding()">Save Changes</button>
+</div>
+</div>
+</section>
+</main>
+<div id="modal-overlay" class="modal">
+<div class="modal-content">
+<button class="modal-close" onclick="closeModal()">✕</button>
+<div id="modal-body"></div>
+</div>
+</div>
+<div id="toast"><span id="toast-message"></span></div>
+<script>
+const scene=new THREE.Scene();scene.background=new THREE.Color(0);
+const cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1e3);cam.position.z=50;
+const rend=new THREE.WebGLRenderer({antialias:!0});rend.setSize(innerWidth,innerHeight);rend.setPixelRatio(devicePixelRatio);
+document.getElementById('bg').appendChild(rend.domElement);
+const geo=new THREE.BufferGeometry(),cnt=2e3,pos=new Float32Array(3*cnt);
+for(let i=0;i<3*cnt;i++)pos[i]=200*(Math.random()-.5);
+geo.setAttribute('position',new THREE.BufferAttribute(pos,3));
+const mat=new THREE.PointsMaterial({size:.5,color:16777215}),stars=new THREE.Points(geo,mat);scene.add(stars);
+let mx=0,my=0;
+document.addEventListener('mousemove',e=>{mx=2*e.clientX/innerWidth-1;my=2*-(e.clientY/innerHeight)+1});
+function animate(){requestAnimationFrame(animate);stars.rotation.y+=2e-4;stars.rotation.x+=1e-4;cam.position.x+=(2*mx-cam.position.x)*.02;cam.position.y+=(2*my-cam.position.y)*.02;cam.lookAt(scene.position);rend.render(scene,cam)}
+animate();
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();rend.setSize(innerWidth,innerHeight)});
+
+let state={fest:{name:'The FestForge',primary:'#A78BFA',secondary:'#06B6D4',description:'Join the biggest technical and cultural extravaganza of the year.'},events:[
+{id:1,name:'Algo Masters',day:'Day 1',start:'09:00',end:'12:00',venue:'Computer Lab A',slots:50,category:'Technical',desc:'Competitive programming challenge to test your algorithmic skills and problem-solving abilities.'},
+{id:2,name:'Dance Fusion',day:'Day 1',start:'16:00',end:'19:00',venue:'Main Stage',slots:60,category:'Cultural',desc:'Showcase your dancing talents in this electrifying dance competition.'},
+{id:3,name:'Web Dev Workshop',day:'Day 2',start:'10:00',end:'13:00',venue:'Seminar Hall',slots:40,category:'Technical',desc:'Learn modern web development techniques from industry experts.'},
+{id:4,name:'Battle of Bands',day:'Day 2',start:'18:00',end:'22:00',venue:'Open Arena',slots:80,category:'Cultural',desc:'Rock the stage with your band and compete for the grand prize.'},
+{id:5,name:'AI Hackathon',day:'Day 3',start:'08:00',end:'20:00',venue:'Innovation Lab',slots:30,category:'Technical',desc:'12-hour hackathon focused on building AI-powered solutions.'},
+{id:6,name:'Fashion Show',day:'Day 3',start:'19:00',end:'22:00',venue:'Main Stage',slots:50,category:'Cultural',desc:'Walk the ramp and showcase your fashion creativity and style.'}
+],userRegistrations:[]};
+
+function init(){renderEvents('Day 1');applyBranding()}
+function toggleMobileMenu(){document.getElementById('mobile-menu').classList.toggle('active')}
+function toggleView(v){if(v=="logout"){localStorage.removeItem('logindata');location="/SITEFORGE/login"} document.querySelectorAll('main>section').forEach(s=>s.classList.add('hidden'));const t=document.getElementById(v+'-view');t&&(t.classList.remove('hidden'),'schedule'===v&&renderMySchedule())}
+function applyBranding(){const f=state.fest;document.documentElement.style.setProperty('--primary',f.primary);document.documentElement.style.setProperty('--secondary',f.secondary);document.getElementById('fest-name-nav').textContent=f.name;document.getElementById('fest-title').textContent=f.name;document.getElementById('fest-desc').textContent=f.description;document.getElementById('logo-text').textContent=f.name.substring(0,2).toUpperCase()}
+function updateBranding(){state.fest.name=document.getElementById('input-fest-name').value;state.fest.primary=document.getElementById('input-primary-color').value;state.fest.secondary=document.getElementById('input-secondary-color').value;applyBranding();showToast('Branding Updated','success')}
+function renderEvents(d){const grid=document.getElementById('events-grid');document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.textContent===d));grid.innerHTML=state.events.filter(e=>e.day===d).map(e=>`<div class="card"><span class="badge">${e.category}</span><h3 class="event-title">${e.name}</h3><p class="event-desc">${e.desc}</p><div class="event-meta"><span class="meta-item">⏰ ${e.start}-${e.end}</span><span class="meta-item">📍 ${e.venue}</span><span class="meta-item">👥 ${e.slots} slots</span></div><button class="btn btn-primary" onclick="openEventDetails(${e.id})">View Details</button></div>`).join('')}
+function filterEvents(d){renderEvents(d)}
+function openEventDetails(id){const e=state.events.find(x=>x.id===id);document.getElementById('modal-body').innerHTML=`<h2>${e.name}</h2><p>${e.desc}</p><div class="event-meta"><span class="meta-item">⏰ ${e.start}-${e.end}</span><span class="meta-item">📍 ${e.venue}</span><span class="meta-item">👥 ${e.slots} slots available</span></div><div class="modal-actions"><button class="btn btn-primary" onclick="handleRegistration(${e.id})">Register Now</button><button class="btn btn-outline" onclick="closeModal()">Back</button></div>`;document.getElementById('modal-overlay').classList.add('active')}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('active')}
+function handleRegistration(id){const e=state.events.find(x=>x.id===id);if(!state.userRegistrations.find(r=>r.id===id)){state.userRegistrations.push(e);closeModal();showToast('Successfully Registered!','success')}else{showToast('Already registered','error')}}
+function renderMySchedule(){const list=document.getElementById('my-events-list');if(0===state.userRegistrations.length)list.innerHTML='<div class="schedule-empty"><h3>No events registered yet</h3><p>Browse events and register to see them here</p><button class="btn btn-primary" onclick="toggleView(\'events\')" style="margin-top:1.5rem">Explore Events</button></div>';else list.innerHTML=state.userRegistrations.map(e=>`<div class="card schedule-card"><div class="schedule-info"><h4>${e.name}</h4><p style="color:var(--muted)">${e.desc}</p><div class="event-meta"><span class="meta-item">📅 ${e.day}</span><span class="meta-item">⏰ ${e.start}-${e.end}</span><span class="meta-item">📍 ${e.venue}</span></div></div></div>`).join('')}
+function showToast(msg,type){document.getElementById('toast-message').textContent=msg;const t=document.getElementById('toast');t.style.background='success'===type?'#10b981':'#ef4444';t.classList.add('visible');setTimeout(()=>t.classList.remove('visible'),3e3)}
+window.onload=init;
+</script>
+</body>
+</html>
